@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Shai's Surveys</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>  
+  <div id="SurveyDiv" v-bind:title="title">
+    <h3>{{ title }}</h3>
+    <survey-question v-for="question in questions"
+                     v-bind:title="question.title"
+                     v-bind:def="question.default || 'test'"
+                     v-bind:key="question.title"
+                     v-bind:type="question.type || 'text'"
+                     v-bind:options="question.options"></survey-question>
+  </div>
+
+  <script>
+    var vueData = {title: "Test Survey",
+                   questions: [
+                                  {title: "Age",
+                                   type: "number"
+                                  },
+                                  {title: "Name",
+                                   type: "text"
+                                  },
+                                  {title: "Email",
+                                   type: "email"
+                                  },
+                                  {title: "Language",
+                                   type: "enum",
+                                   options: ["English", "עברית"]
+                                  }
+                               ]};
+    Vue.component('survey-enum-options', {
+        props: ['group', 'caption'],
+        template: '<div><label>{{ caption }}</label><input type="radio" /></div>'
+    })
+    
+    Vue.component('survey-question', {
+      props: ['title', 'def', 'type', 'options'],
+      template: '<div> \
+                     <div v-if="type === &quot;text&quot;"><label>{{ title }}:</label><input type="text" v-bind:value="def" /></div> \
+                     <div v-if="type === &quot;number&quot;"><label>{{ title }}:</label><input type="number" v-bind:value="def" /></div> \
+                     <div v-if="type === &quot;email&quot;"><label>{{ title }}:</label><input type="email" v-bind:value="def" /></div> \
+                     <div v-if="type === &quot;enum&quot;"><label>{{ title }}:</label><survey-enum-options v-for="option in options" v-bind:caption="option" /></div> \
+                 </div>'
+    })
+    
+    var vm = new Vue({
+        el: '#SurveyDiv',
+        data: vueData
+    });
+
+    function onAnswer()
+    {
+    }
+    
+  </script>
+</body>
+</html>
