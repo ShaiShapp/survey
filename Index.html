@@ -3,23 +3,28 @@
 <head>
   <title>Shai's Surveys</title>
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="SurveyComponents.js"></script>
 </head>
 <body>  
   <div id="SurveyDiv" v-bind:title="title">
     <h3>{{ title }}</h3>
     <survey-question v-for="question in questions"
                      v-bind:title="question.title"
-                     v-bind:def="question.default || 'test'"
+                     v-bind:def="question.default || ''"
                      v-bind:key="question.title"
                      v-bind:type="question.type || 'text'"
-                     v-bind:options="question.options"></survey-question>
+                     v-bind:options="question.options"
+                     v-bind:required="question.required"
+                     v-on:input="validate"></survey-question>
+    <button v-on:click="submitForm();">Submit</button>
   </div>
 
   <script>
     var vueData = {title: "Test Survey",
                    questions: [
                                   {title: "Age",
-                                   type: "number"
+                                   type: "number",
+                                   required: "yes"
                                   },
                                   {title: "Name",
                                    type: "text"
@@ -32,28 +37,40 @@
                                    options: ["English", "עברית"]
                                   }
                                ]};
-    Vue.component('survey-enum-options', {
-        props: ['group', 'caption'],
-        template: '<div><label>{{ caption }}</label><input type="radio" /></div>'
-    })
     
     Vue.component('survey-question', {
-      props: ['title', 'def', 'type', 'options'],
+      props: ['title', 'def', 'type', 'options', 'required'],
+      data: function () {
+                return {
+                    valid: 1,
+                    errormessage: "",
+                    value: ""
+                }
+            },
+      methods: {validate: validateAnswer},
       template: '<div> \
-                     <div v-if="type === &quot;text&quot;"><label>{{ title }}:</label><input type="text" v-bind:value="def" /></div> \
-                     <div v-if="type === &quot;number&quot;"><label>{{ title }}:</label><input type="number" v-bind:value="def" /></div> \
-                     <div v-if="type === &quot;email&quot;"><label>{{ title }}:</label><input type="email" v-bind:value="def" /></div> \
-                     <div v-if="type === &quot;enum&quot;"><label>{{ title }}:</label><survey-enum-options v-for="option in options" v-bind:caption="option" /></div> \
+                     <p v-if="errormessage">{{ errormessage }}</p>\
+                     <div v-if="type === \'text\'"><label>{{ title }}:</label><input type="text" v-bind:value="def" v-on:change="validate"/></div> \
+                     <div v-if="type === \'number\'"><label>{{ title }}:</label><input type="number" v-bind:value="def" v-on:change="validate" /></div> \
+                     <div v-if="type === \'email\'"><label>{{ title }}:</label><input type="email" v-bind:value="def" v-on:change="validate" /></div> \
+                     <div v-if="type === \'enum\'"><label>{{ title }}:</label><survey-enum-option v-for="option, index in options" v-bind:caption="option" v-bind:key="index" /></div> \
                  </div>'
     })
     
     var vm = new Vue({
         el: '#SurveyDiv',
-        data: vueData
+        data: vueData,
+        methods: {submitForm: submitForm, validate: validateForm}
     });
-
-    function onAnswer()
+    
+    function validateForm()
     {
+        //alert("Validating form");
+    }
+
+    function submitForm()
+    {
+        //alert("Submitting");
     }
     
   </script>
