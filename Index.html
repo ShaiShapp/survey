@@ -3,19 +3,20 @@
 <head>
   <title>Shai's Surveys</title>
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-  <script src="SurveyComponents.js"></script>
+  <script src="SurveyComponents.js?version=5"></script>
 </head>
 <body>  
   <div id="SurveyDiv" v-bind:title="title">
     <h3>{{ title }}</h3>
-    <survey-question v-for="question in questions"
+    <survey-question v-for="question, index in questions"
                      v-bind:title="question.title"
+                     v-bind:idx="index"
                      v-bind:def="question.default || ''"
-                     v-bind:key="question.title"
+                     v-bind:key="index"
                      v-bind:type="question.type || 'text'"
                      v-bind:options="question.options"
                      v-bind:required="question.required"
-                     v-on:input="validate"></survey-question>
+                     v-on:input="save"></survey-question>
     <button v-on:click="submitForm();">Submit</button>
   </div>
 
@@ -36,36 +37,18 @@
                                    type: "enum",
                                    options: ["English", "עברית"]
                                   }
-                               ]};
-    
-    Vue.component('survey-question', {
-      props: ['title', 'def', 'type', 'options', 'required'],
-      data: function () {
-                return {
-                    valid: 1,
-                    errormessage: "",
-                    value: ""
-                }
-            },
-      methods: {validate: validateAnswer},
-      template: '<div> \
-                     <p v-if="errormessage">{{ errormessage }}</p>\
-                     <div v-if="type === \'text\'"><label>{{ title }}:</label><input type="text" v-bind:value="def" v-on:change="validate"/></div> \
-                     <div v-if="type === \'number\'"><label>{{ title }}:</label><input type="number" v-bind:value="def" v-on:change="validate" /></div> \
-                     <div v-if="type === \'email\'"><label>{{ title }}:</label><input type="email" v-bind:value="def" v-on:change="validate" /></div> \
-                     <div v-if="type === \'enum\'"><label>{{ title }}:</label><survey-enum-option v-for="option, index in options" v-bind:caption="option" v-bind:key="index" /></div> \
-                 </div>'
-    })
+                               ],
+                    answers: []};
     
     var vm = new Vue({
         el: '#SurveyDiv',
         data: vueData,
-        methods: {submitForm: submitForm, validate: validateForm}
+        methods: {submitForm: submitForm, save: saveAnswer}
     });
     
-    function validateForm()
+    function saveAnswer(answer, index)
     {
-        //alert("Validating form");
+        this.answers[index] = answer;
     }
 
     function submitForm()
