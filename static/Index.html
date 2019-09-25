@@ -3,7 +3,7 @@
 <head>
   <title>Shai's Surveys</title>
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-  <script src="SurveyComponents.js?version=5"></script>
+  <script src="/static/SurveyComponents.js"></script>
   <!--link rel="icon" type="image/png" href="http://example.com/myicon.png"-->
 </head>
 <body>  
@@ -22,7 +22,7 @@
   </div>
 
   <script>
-    var vueData = {title: "Test Survey",
+    /*var vueData = {title: "Test Survey",
                    questions: [
                                   {title: "Age",
                                    type: "number",
@@ -45,7 +45,9 @@
         el: '#SurveyDiv',
         data: vueData,
         methods: {submitForm: submitForm, save: saveAnswer}
-    });
+    });*/
+    
+    loadSurveyData();
     
     function saveAnswer(answer, index)
     {
@@ -55,6 +57,26 @@
     function submitForm()
     {
         //alert("Submitting");
+    }
+    
+    function loadSurveyData()
+    {
+        let urlParams = new URLSearchParams(window.location.search);
+        let surveyLink = urlParams.get('SurveyLink');
+        if (!surveyLink) return;
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                var vueData = JSON.parse(this.responseText);
+                var vm = new Vue({
+                    el: '#SurveyDiv',
+                    data: vueData,
+                    methods: {submitForm: submitForm, save: saveAnswer}
+                });
+            }
+          };
+        xhttp.open("GET", "GetSurveyData?surveylink=" + surveyLink, true);
+        xhttp.send();
     }
     
   </script>
