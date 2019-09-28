@@ -47,6 +47,5 @@ function validateAnswer(event)
     }
     this.validvalue = (this.errormessage === "");
     this.value = newValue;
-    //this.$emit('input', {answer: newValue, index: this.idx});
     this.$emit('input', newValue, this.idx);
 }
