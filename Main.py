@@ -8,14 +8,14 @@ def getSurveyData():
     surveyLink = request.query.surveylink
     db = sqlite3.connect('data/Survey.db')
     cursor = db.cursor()
-    cursor.execute("SELECT ID, TITLE, DESCRIPTOR FROM SURVEYS WHERE ID = (SELECT SURVEY_ID FROM SURVEY_LINKS WHERE LINK_STR = ?)", (surveyLink,))
+    cursor.execute("SELECT SURVEYS.ID, TITLE, DESCRIPTOR, SUBMISSION_DATE FROM SURVEY_LINKS JOIN SURVEYS ON SURVEY_LINKS.SURVEY_ID = SURVEYS.ID WHERE LINK_STR = ?", (surveyLink,))
     surveyRow = cursor.fetchone()
     if not surveyRow:
         return '{"error": "Survey not found"}'
     cursor.execute("SELECT QUESTION_ID, ANSWER FROM SURVEY_ANSWERS WHERE LINK = ?", (surveyLink,))
     surveyAnswers = cursor.fetchall()
     db.close()
-    survey = {"id": surveyRow[0], "title": surveyRow[1], "descriptor": surveyRow[2], "answers": surveyAnswers}
+    survey = {"id": surveyRow[0], "title": surveyRow[1], "descriptor": surveyRow[2], "submissionDate": surveyRow[3], "answers": surveyAnswers}
     return json.dumps(survey)
 
 @route('/GetAllSurveys')
@@ -26,6 +26,17 @@ def getAllSurveys():
     surveys = cursor.fetchall()
     db.close()
     return json.dumps(surveys)
+
+@post('/SubmitAnswers')
+def submitAnswers():
+    surveyLink = request.forms.surveylink
+    
+    db = sqlite3.connect('data/Survey.db')
+    cursor = db.cursor()
+    cursor.execute("UPDATE SURVEY_LINKS SET SUBMISSION_DATE = date('now') WHERE LINK_STR = ?;", (surveyLink,))
+    db.commit()
+    db.close()
+    return ""
 
 @post('/SaveAnswer')
 def saveAnswer():
