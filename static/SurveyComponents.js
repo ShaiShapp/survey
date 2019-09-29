@@ -1,6 +1,6 @@
 Vue.component('survey-enum-option', {
     props: ['group', 'caption'],
-    template: '<div><label>{{ caption }}</label><input type="radio" /></div>'
+    template: '<div class="survey-question-option-container"><input type="radio" /><label>{{ caption }}</label></div>'
 })
 
 Vue.component('survey-question', {
@@ -15,10 +15,26 @@ Vue.component('survey-question', {
   methods: {validate: validateAnswer},
   template: '<div> \
                  <p v-if="errormessage">{{ errormessage }}</p> \
-                 <div v-if="type === \'text\'"><span v-if="required">*</span><label>{{ title }}:</label><input type="text" v-bind:value="value" v-on:change="validate"/></div> \
-                 <div v-if="type === \'number\'"><span v-if="required">*</span><label>{{ title }}:</label><input type="number" v-bind:value="value" v-on:change="validate" /></div> \
-                 <div v-if="type === \'email\'"><span v-if="required">*</span><label>{{ title }}:</label><input type="email" v-bind:value="value" v-on:change="validate" /></div> \
-                 <div v-if="type === \'enum\'"><span v-if="required">*</span><label>{{ title }}:</label><survey-enum-option v-for="option, index in options" v-bind:caption="option" v-bind:key="index" /></div> \
+                 <div v-if="type === \'text\'" class="survey-question-container"> \
+                    <span v-if="required" class="mandatory-asterisk">*</span> \
+                    <label class="survey-question-title">{{ title }}:</label> \
+                    <input type="text" v-bind:value="value" v-on:change="validate" class="survey-question-text"/> \
+                 </div> \
+                 <div v-if="type === \'number\'" class="survey-question-container"> \
+                    <span v-if="required" class="mandatory-asterisk">*</span> \
+                    <label class="survey-question-title">{{ title }}:</label> \
+                    <input type="number" v-bind:value="value" v-on:change="validate" class="survey-question-text"/> \
+                 </div> \
+                 <div v-if="type === \'email\'" class="survey-question-container"> \
+                    <span v-if="required" class="mandatory-asterisk">*</span> \
+                    <label class="survey-question-title">{{ title }}:</label> \
+                    <input type="email" v-bind:value="value" v-on:change="validate" class="survey-question-text" /> \
+                 </div> \
+                 <div v-if="type === \'enum\'" class="survey-question-container"> \
+                    <span v-if="required" class="mandatory-asterisk">*</span> \
+                    <label class="survey-question-title">{{ title }}:</label> \
+                    <survey-enum-option v-for="option, index in options" v-bind:caption="option" v-bind:key="index" /> \
+                 </div> \
              </div>'
 })
 
@@ -27,7 +43,7 @@ Vue.component('survey-answer-summary', {
   computed: {
                 isTextType: function() {return this.type === 'text' || this.type === 'number' || this.type === 'email';}
             },
-  template: '<div> \
+  template: '<div class="survey-answer-container"> \
                  <div v-if="isTextType"><label>{{ title }}:</label><span>{{ answer }}</span></div> \
                  <div v-if="type === \'enum\'"><label>{{ title }}:</label><span>{{ answer }}</span></div> \
              </div>'

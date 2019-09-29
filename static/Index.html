@@ -4,14 +4,15 @@
   <title>Shai's Surveys</title>
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
   <script src="/static/SurveyComponents.js"></script>
+  <link rel="stylesheet" href="/static/Survey.css"></script>
   <!--link rel="icon" type="image/png" href="http://example.com/myicon.png"-->
 </head>
 <body>
   <h3 id="ErrorMessage" style="display: none"></h3>
   <div id="SurveyDiv" v-bind:title="title">
-    <h3 v-if="title">{{ title }}</h3>
+    <h1 v-if="title">{{ title }}</h1>
     <div id="AllQuestionsDiv" v-if="displayMode === 'survey' && !pagedMode">
-        <button v-on:click="togglePagedMode();">View one question per page</button>
+        <button v-on:click="togglePagedMode();" class="button-general">View one question per page</button>
         <survey-question v-for="question, index in questions"
                          v-bind:title="question.title"
                          v-bind:idx="index"
@@ -21,7 +22,7 @@
                          v-bind:options="question.options"
                          v-bind:required="question.required"
                          v-on:input="save"></survey-question>
-        <button v-on:click="showSummary();">Done</button>
+        <button v-on:click="showSummary();" class="button-general">Done</button>
         <p v-if="validationError">{{ validationError }}</p>
     </div>
     
@@ -33,12 +34,12 @@
                          v-bind:answer="answers[index] || question.default || ''"
                          v-bind:key="index"
                          v-bind:type="question.type || 'text'"></survey-answer-summary>
-        <button v-if="!submissionDate" v-on:click="showSurvey();">Return</button>
-        <button v-if="!submissionDate" v-on:click="submitAnswers();">Submit</button>
+        <button v-if="!submissionDate" v-on:click="showSurvey();" class="button-general">Return</button>
+        <button v-if="!submissionDate" v-on:click="submitAnswers();" class="button-general">Submit</button>
     </div>
     
     <div id="SingleQuestionDiv" v-if="displayMode === 'survey' && pagedMode">
-        <button v-on:click="togglePagedMode();">View all questions</button>
+        <button v-on:click="togglePagedMode();" class="button-general">View all questions in one page</button>
         <survey-question v-bind:title="questions[currentQuestionIndex].title"
                          v-bind:idx="currentQuestionIndex"
                          v-bind:def="answers[currentQuestionIndex] || questions[currentQuestionIndex].default || ''"
@@ -47,9 +48,9 @@
                          v-bind:options="questions[currentQuestionIndex].options"
                          v-bind:required="questions[currentQuestionIndex].required"
                          v-on:input="save"></survey-question>
-        <button v-if="!isFirstQuestion()" v-on:click="previousQuestion();">Previous</button>
-        <button v-if="!isLastQuestion()" v-on:click="nextQuestion();">Next</button>
-        <button v-if="isLastQuestion()" v-on:click="showSummary();">Done</button>
+        <button v-if="!isFirstQuestion()" v-on:click="previousQuestion();" class="button-general">Previous</button>
+        <button v-if="!isLastQuestion()" v-on:click="nextQuestion();" class="button-general">Next</button>
+        <button v-if="isLastQuestion()" v-on:click="showSummary();" class="button-general">Done</button>
         <p v-if="validationError">{{ validationError }}</p>
     </div>
   </div>

@@ -1,0 +1,58 @@
+div.survey-question-container {
+    padding: 15px 5px;
+    border-bottom: 1px solid rgba(225,225,225,0.5);
+}
+
+span.mandatory-asterisk {
+    color: red;
+}
+
+button.button-general {
+    background-color: white;
+    height: 2em;
+    margin: 15px 5px;
+    cursor: pointer;
+    color: black;
+    border-radius: 5px;
+    border-width: 2px;
+    border-style: solid;
+    border-color: #008CBA;
+    transition-duration: 0.4s;
+}
+
+button.button-general:hover {
+    background-color: #008CBA;
+    color: white;
+    border-width: 2px;
+    border-style: solid;
+    border-color: #008CBA;
+}
+
+label.survey-question-title {
+    font-size: 14pt;
+}
+
+input.survey-question-text {
+    display: block;
+    margin: 5px 5px;
+    border-radius: 3px;
+    height: 14pt;
+}
+
+div.survey-question-option-container {
+    margin: 20px 5px;
+}
+
+div.survey-question-option-container input {
+    margin: 0px 10px;
+    cursor: pointer;
+}
+
+div.survey-answer-container {
+    margin: 25px 5px;
+}
+
+div.survey-answer-container label {
+    font-weight: bold;
+    margin: 0px 5px;
+}
