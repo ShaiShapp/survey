@@ -4,6 +4,7 @@
   <title>Shai's Surveys</title>
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
   <script src="/static/SurveyComponents.js"></script>
+  <script src="/static/Survey.js"></script>
   <link rel="stylesheet" href="/static/Survey.css"></script>
   <!--link rel="icon" type="image/png" href="http://example.com/myicon.png"-->
 </head>
@@ -20,7 +21,7 @@
                          v-bind:key="index"
                          v-bind:type="question.type || 'text'"
                          v-bind:options="question.options"
-                         v-bind:required="question.required"
+                         v-bind:required="!!question.required"
                          v-on:input="save"></survey-question>
         <button v-on:click="showSummary();" class="button-general">Done</button>
         <p v-if="validationError">{{ validationError }}</p>
@@ -29,7 +30,7 @@
     <div id="SummaryDiv" v-if="displayMode === 'summary'">
         <h3>Your answers:</h3>
         <survey-answer-summary v-for="question, index in questions"
-                         v-bind:title="question.title"
+                         v-bind:question="question.title"
                          v-bind:idx="index"
                          v-bind:answer="answersForDisplay[index] || question.default || ''"
                          v-bind:key="index"
@@ -46,7 +47,7 @@
                          v-bind:key="currentQuestionIndex"
                          v-bind:type="questions[currentQuestionIndex].type || 'text'"
                          v-bind:options="questions[currentQuestionIndex].options"
-                         v-bind:required="questions[currentQuestionIndex].required"
+                         v-bind:required="!!questions[currentQuestionIndex].required"
                          v-on:input="save"></survey-question>
         <button v-if="!isFirstQuestion()" v-on:click="previousQuestion();" class="button-general">Previous</button>
         <button v-if="!isLastQuestion()" v-on:click="nextQuestion();" class="button-general">Next</button>
@@ -57,114 +58,6 @@
 
   <script>    
     loadSurveyData();
-    
-    function saveAnswer(answer, index)
-    {
-        let urlParams = new URLSearchParams(window.location.search);
-        let surveyLink = urlParams.get('SurveyLink');
-        this.answers[index] = answer;
-        
-        let xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && !this.status == 200) {
-                console.log(this.responseText);
-            }
-          };
-        xhttp.open("POST", "/SaveAnswer", true);
-        xhttp.send("surveylink=" + surveyLink + "&answerid=" + index + "&answertext=" + answer);
-    }
-    
-    function validateSurvey(surveyDescriptor)
-    {
-        let unansweredQuestions = [];
-        for (let i = 0; i < surveyDescriptor.questions.length; i++)
-        {
-            if (!surveyDescriptor.answers[i] && surveyDescriptor.questions[i].required) unansweredQuestions.push(surveyDescriptor.questions[i].title);
-        }
-        if (unansweredQuestions.length > 0)
-        {
-            surveyDescriptor.validationError = "Please provide valid answers to the following questions: " + unansweredQuestions.join(", ");
-            return false;
-        } else
-        {
-            surveyDescriptor.validationError = "";
-            return true;
-        }
-    }
-
-    function submitAnswers()
-    {
-        let urlParams = new URLSearchParams(window.location.search);
-        let surveyLink = urlParams.get('SurveyLink');
-        
-        let xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && !this.status == 200) {
-                console.log(this.responseText);
-            }
-          };
-        xhttp.open("POST", "/SubmitAnswers", true);
-        xhttp.send("surveylink=" + surveyLink);
-    }
-    
-    function loadSurveyData()
-    {
-        let urlParams = new URLSearchParams(window.location.search);
-        let surveyLink = urlParams.get('SurveyLink');
-        if (!surveyLink) return;
-        let xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                let surveyData = JSON.parse(this.responseText);
-                if (surveyData.hasOwnProperty("error"))
-                {
-                    document.getElementById("SurveyDiv").style.display = "none";
-                    document.getElementById("ErrorMessage").style.display = "block";
-                    document.getElementById("ErrorMessage").innerText = "Error: " + surveyData.error;
-                } else
-                {
-                    let surveyDescriptor = JSON.parse(surveyData.descriptor);
-                    let surveyAnswers = surveyData.answers;
-                    initializeSurveyAnswers(surveyDescriptor, surveyAnswers);
-                    surveyDescriptor.currentQuestionIndex = 0;
-                    surveyDescriptor.currentQuestion = surveyDescriptor.questions[0];
-                    surveyDescriptor.displayMode = surveyData.submissionDate ? 'summary' : 'survey';
-                    surveyDescriptor.validationError = '';
-                    surveyDescriptor.submissionDate = surveyData.submissionDate;
-                    surveyDescriptor.pagedMode = false;
-                    let vm = new Vue({
-                        el: '#SurveyDiv',
-                        data: surveyDescriptor,
-                        methods: {submitAnswers: submitAnswers,
-                                  save: saveAnswer,
-                                  validateSurvey: validateSurvey,
-                                  togglePagedMode: function() {this.pagedMode = !this.pagedMode;},
-                                  showSummary: function() {if (this.validateSurvey(surveyDescriptor)) this.displayMode = 'summary';},
-                                  showSurvey: function() {this.displayMode = 'survey'},
-                                  nextQuestion: function() {this.currentQuestionIndex++;},
-                                  previousQuestion: function() {this.currentQuestionIndex--;},
-                                  isLastQuestion: function() {return this.currentQuestionIndex === this.questions.length - 1;},
-                                  isFirstQuestion: function() {return this.currentQuestionIndex === 0;}}
-                    });
-                }
-            }
-          };
-        xhttp.open("GET", "/GetSurveyData?surveylink=" + surveyLink, true);
-        xhttp.send();
-    }
-    
-    function initializeSurveyAnswers(surveyDescriptor, surveyAnswers)
-    {
-        surveyDescriptor.answers = {};
-        surveyDescriptor.answersForDisplay = {};
-        if (surveyAnswers && Array.isArray(surveyAnswers))
-        {
-            surveyAnswers.forEach(function (answer) {surveyDescriptor.answers[answer[0]] = answer[1];
-                                                     let question = surveyDescriptor.questions[[answer[0]]];
-                                                     surveyDescriptor.answersForDisplay[answer[0]] = (question.type !== "enum" ? answer[1] : question.options[answer[1]])});
-        }
-    }
-    
   </script>
 </body>
 </html>
