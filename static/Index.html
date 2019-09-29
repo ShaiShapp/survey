@@ -31,7 +31,7 @@
         <survey-answer-summary v-for="question, index in questions"
                          v-bind:title="question.title"
                          v-bind:idx="index"
-                         v-bind:answer="answers[index] || question.default || ''"
+                         v-bind:answer="answersForDisplay[index] || question.default || ''"
                          v-bind:key="index"
                          v-bind:type="question.type || 'text'"></survey-answer-summary>
         <button v-if="!submissionDate" v-on:click="showSurvey();" class="button-general">Return</button>
@@ -156,9 +156,12 @@
     function initializeSurveyAnswers(surveyDescriptor, surveyAnswers)
     {
         surveyDescriptor.answers = {};
+        surveyDescriptor.answersForDisplay = {};
         if (surveyAnswers && Array.isArray(surveyAnswers))
         {
-            surveyAnswers.forEach(function (answer) {surveyDescriptor.answers[answer[0]] = answer[1];});
+            surveyAnswers.forEach(function (answer) {surveyDescriptor.answers[answer[0]] = answer[1];
+                                                     let question = surveyDescriptor.questions[[answer[0]]];
+                                                     surveyDescriptor.answersForDisplay[answer[0]] = (question.type !== "enum" ? answer[1] : question.options[answer[1]])});
         }
     }
     

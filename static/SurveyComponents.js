@@ -1,5 +1,11 @@
 Vue.component('survey-enum-option', {
-    props: ['group', 'caption', 'name', 'idx', 'question', 'choice'],
+    props: {group: String,
+            caption: String,
+            name: String,
+            idx: Number,
+            question: Number,
+            choice: String
+           },
     computed: {
                 isChecked: function() {return (this.choice === ("" + this.idx));}
             },
